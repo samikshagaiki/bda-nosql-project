@@ -1,21 +1,34 @@
-from pyspark.sql import SparkSession
+from spark_session import get_spark
 
-spark = SparkSession.builder \
-    .appName("Review Analysis") \
-    .getOrCreate()
+spark = get_spark()
 
-df = spark.read.csv("data/reviews.csv", header=True, inferSchema=True)
+def load_data(path="data/reviews.csv"):
+    return spark.read.csv(path, header=True, inferSchema=True)
 
-df.printSchema()
 
-# Average rating
-df.groupBy("product_id").avg("rating").show()
+def avg_rating(df):
+    return df.groupBy("product_id").avg("rating")
 
-# Count reviews
-df.groupBy("product_id").count().show()
 
-# Top products
-df.groupBy("product_id") \
-  .avg("rating") \
-  .orderBy("avg(rating)", ascending=False) \
-  .show(10)
+def review_count(df):
+    return df.groupBy("product_id").count()
+
+
+def top_products(df, n=10):
+    return df.groupBy("product_id") \
+        .avg("rating") \
+        .orderBy("avg(rating)", ascending=False) \
+        .limit(n)
+
+
+if __name__ == "__main__":
+    df = load_data()
+
+    print("\nAverage Ratings:")
+    avg_rating(df).show()
+
+    print("\nReview Count:")
+    review_count(df).show()
+
+    print("\nTop Products:")
+    top_products(df).show()

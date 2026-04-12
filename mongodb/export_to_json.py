@@ -1,22 +1,20 @@
-from pymongo import MongoClient
+from db_config import get_collection
 import json
 
-client = MongoClient("mongodb://localhost:27017/")
-collection = client["productDB"]["reviews"]
+collection = get_collection()
 
-query = {
-    "product_id": "P10",
-    "rating": 5
-}
+def export_json(product_id):
+    data = list(collection.find({"product_id": product_id}, {"_id": 0}))
 
-cursor = collection.find(query, {"_id": 0})
+    filename = f"data/{product_id}_reviews.json"
 
-with open("data/p10_reviews.json", "w", encoding="utf-8") as f:
-    f.write("[\n")
-    for i, doc in enumerate(cursor):
-        if i > 0:
-            f.write(",\n")
-        json.dump(doc, f)
-    f.write("\n]")
+    with open(filename, "w", encoding="utf-8") as f:
+        json.dump(data, f)
 
-print("Filtered data exported!")
+    return filename
+
+
+if __name__ == "__main__":
+    product_id = input("Enter Product ID: ")
+    file = export_json(product_id)
+    print(f"Exported to {file}")

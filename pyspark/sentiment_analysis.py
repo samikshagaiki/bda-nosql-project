@@ -1,15 +1,22 @@
-from pyspark.sql import SparkSession
+from spark_session import get_spark
 from pyspark.sql.functions import when
 
-spark = SparkSession.builder.appName("Sentiment").getOrCreate()
+spark = get_spark()
 
-df = spark.read.csv("data/reviews.csv", header=True, inferSchema=True)
+def load_data(path="data/reviews.csv"):
+    return spark.read.csv(path, header=True, inferSchema=True)
 
-df = df.withColumn(
-    "sentiment",
-    when(df.rating >= 4, "Positive")
-    .when(df.rating <= 2, "Negative")
-    .otherwise("Neutral")
-)
 
-df.groupBy("sentiment").count().show()
+def sentiment(df):
+    df = df.withColumn(
+        "sentiment",
+        when(df.rating >= 4, "Positive")
+        .when(df.rating <= 2, "Negative")
+        .otherwise("Neutral")
+    )
+    return df.groupBy("sentiment").count()
+
+
+if __name__ == "__main__":
+    df = load_data()
+    sentiment(df).show()

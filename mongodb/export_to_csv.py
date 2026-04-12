@@ -1,16 +1,19 @@
+from db_config import get_collection
 import pandas as pd
-from pymongo import MongoClient
 
-client = MongoClient("mongodb://localhost:27017/")
-collection = client["productDB"]["reviews"]
+collection = get_collection()
 
-# Fetch data (excluding MongoDB _id)
-data = list(collection.find({}, {"_id": 0}))
+def export_csv(product_id):
+    data = list(collection.find({"product_id": product_id}, {"_id": 0}))
+    df = pd.DataFrame(data)
 
-# Convert to DataFrame
-df = pd.DataFrame(data)
+    filename = f"data/{product_id}_reviews.csv"
+    df.to_csv(filename, index=False)
 
-# Save to CSV
-df.to_csv("data/exported_reviews.csv", index=False)
+    return filename
 
-print("Data exported to CSV successfully!")
+
+if __name__ == "__main__":
+    product_id = input("Enter Product ID: ")
+    file = export_csv(product_id)
+    print(f"Exported to {file}")
