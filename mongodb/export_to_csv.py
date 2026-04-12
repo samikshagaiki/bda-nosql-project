@@ -1,4 +1,4 @@
-from db_config import get_collection
+from mongodb.db_config import get_collection
 import pandas as pd
 
 collection = get_collection()
