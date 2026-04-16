@@ -1,4 +1,4 @@
-from spark_session import get_spark
+from spark_module.spark_session import get_spark
 from pyspark.sql.functions import when
 
 spark = get_spark()
